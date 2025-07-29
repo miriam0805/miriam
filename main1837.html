@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star War System</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        /* 전체 화면 설정을 위한 기본 스타일 추가 */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        #message {
+            position: absolute;
+            top: 50px;
+            left: 50%; /* 중앙 정렬 */
+            transform: translateX(-50%); /* 정확한 중앙 위치 */
+            padding: 2vw 6vw;
+            background-color: #f8f9fa; /* 밝은 배경색 */
+            border: 1px solid #ccc; /* 경계선 */
+            border-radius: 2vw; /* 둥근 모서리 */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 그림자 효과 */
+            color: #333; /* 텍스트 색상 변경 */
+            font-size: 35px; /* 텍스트 크기 조정 */
+            display: none; /* 초기에는 숨김 */
+            z-index: 100; /* 다른 요소 위에 표시 */
+        }
+        #next-button {
+            position: absolute;
+            top: 200px; /* 오른쪽 상단에서 200px 아래 */
+            right: 5%; /* 오른쪽 */
+            transform: none; /* 기존 가운데 정렬 제거 */
+            font-size: calc(var(--container-size) * 0.032); /* 글자만 2배로 */
+            padding: 2vw 4vw; /* 패딩도 2배로 */
+            background-color: #e4ede4;
+            color: #333;
+            border: none;
+            border-radius: 2vw; /* 둥근 모서리도 2배로 */
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            margin: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        #next-button:enabled {
+            background-color: #4CAF50;
+            color: white;
+            display: block;
+        }
+        #image-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        #current-image {
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain;   /* 정사각형 비율 유지, 잘리지 않음 */
+            aspect-ratio: 1 / 1;  /* 1200x1200 기준 정사각형 */
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #fff;
+        }
+
+        #star-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;  /* sub-star-container보다 높은 z-index 설정 */
+            pointer-events: auto; /* 컨테이너도 클릭 이벤트 활성화 */
+        }
+
+        .star {
+            position: absolute;
+            width: calc(var(--container-size) * 0.04);  /* 별 크기 조정 */
+            height: calc(var(--container-size) * 0.04); /* 별 크기 조정 */
+            background-color: yellow;
+            border-radius: 80%;
+            cursor: pointer;
+            pointer-events: auto;
+            z-index: 20;
+            transform-origin: center;
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.8);
+            left: calc(50% + var(--container-size) * 0.015);  /* 택배 상자 중앙으로 조정 */
+            top: calc(50% + var(--container-size) * 0.015);   /* 택배 상자 중앙으로 조정 */
+            transform: translate(-50%, -50%); /* 정확한 중앙 위치 */
+        }
+
+        /* S1004 별 스타일 추가 */
+        .star.s1004 {
+            background-color: #f8f9fa; /* 완성된 느낌을 주는 파란 색상 */
+            box-shadow: 0 0 40px rgba(241, 243, 244, 0.8); /* 완성된 느낌을 주는 빛나는 효과 */
+        }
+
+        /* 첫 번째 물결 */
+        .star::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 80%;
+            background: transparent;
+            border: calc(var(--container-size) * 0.009) solid rgba(240, 74, 8, 0.8);
+            transform: translate(-50%, -50%);
+            animation: starRipple 2s infinite;
+            animation-delay: 0s;
+            pointer-events: none;
+        }
+
+        /* 두 번째 물결 */
+        .star::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 80%;
+            background: transparent;
+            border: calc(var(--container-size) * 0.009) solid rgba(228, 214, 10, 0.8);
+            transform: translate(-50%, -50%);
+            animation: starRipple 2s infinite;
+            animation-delay: 0.4s;
+            pointer-events: none;
+        }
+
+        /* 추가 물결을 위한 가상 요소들 */
+        .star-ripple-3,
+        .star-ripple-4,
+        .star-ripple-5 {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 80%;
+            background: transparent;
+            border: 30px solid rgba(189, 12, 9, 0.8);
+            transform: translate(-50%, -50%);
+            animation: ripple 2s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes starRipple {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.9;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                width: calc(var(--container-size) * 0.15); /* 화면 크기의 15% */
+                height: calc(var(--container-size) * 0.15); /* 화면 크기의 15% */
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .mis-star {
+            background-color: rgb(175, 226, 45);
+            box-shadow: 0 0 5px rgba(167, 219, 12, 0.8);
+        }
+       
+        #text-display {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            transform: none;
+            padding: 1vw 2vw;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 1vw;
+            font-size: clamp(12px, 2vw, 36px);
+            font-weight: bold;
+            z-index: 5;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            max-width: 40vw;
+        }
+
+        #particle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        @keyframes moveParticle {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(50px, -50px);
+                opacity: 0;
+            }
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 80%;
+            background: transparent;
+            border: 15px solid rgba(221, 209, 33, 0.8);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: ripple 2s infinite;
+            z-index: 50;
+            /* 여기에 영향을 주는 부분 */
+            width: 100px;
+            height: 100px;
+        }
+
+        @keyframes ripple {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.9;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                width: 100px;
+                height: 100px;
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .star-orbit {
+            position: absolute;
+            border: 2px dashed rgba(236, 211, 25, 0.3);
+            border-radius: 50%;
+            z-index: 10;
+            transform: translate(-50%, -50%);
+        }
+
+        #spaceship {
+            position: absolute;
+            width: calc(var(--container-size) * 0.058);  /* 컨테이너 크기의 8% */
+            height: calc(var(--container-size) * 0.058); /* 컨테이너 크기의 8% */
+            left: 1%;
+            top: 5%;
+            transition: all 1s ease-in-out;
+            z-index: 20;
+        }
+
+        /* 행성 스타일 */
+        .planet {
+            position: absolute;
+            width: 20px;  /* 20px에서 40px로 증가 */
+            height: 20px; /* 20px에서 40px로 증가 */
+            background-color: #3498db;
+            border-radius: 50%;
+            transform-origin: center;
+            z-index: 5;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* 빛나는 효과 추가 */
+            animation: orbit 20s linear infinite; /* 공전 속도를 20초로 늘림 */
+        }
+
+        @keyframes orbit {
+            0% {
+                transform: rotate(0deg) translateX(100px) rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg) translateX(100px) rotate(-360deg);
+            }
+        }
+
+        /* 궤도 스타일 */
+        .orbit {
+            position: absolute;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 20%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* 각 행성별 색상 및 크기 차이 */
+        .planet-1 { 
+            background-color: #753ce7;
+            width: calc(var(--container-size) * 0.05);   /* 첫 번째 행성 크기 */
+            height: calc(var(--container-size) * 0.05);
+            animation-duration: 30s; /* 첫 번째 행성: 30초 */
+        }
+        .planet-2 { 
+            background-color: #df13af;
+            width: calc(var(--container-size) * 0.03);   /* 두 번째 행성 크기 */
+            height: calc(var(--container-size) * 0.03);
+            animation-duration: 25s; /* 두 번째 행성: 25초 */
+        }
+        .planet-3 { 
+            background-color: #b65984;
+            width: calc(var(--container-size) * 0.012);   /* 세 번째 행성 크기 */
+            height: calc(var(--container-size) * 0.012);
+            animation-duration: 20s; /* 세 번째 행성: 20초 */
+        }
+        .planet-4 { 
+            background-color: #f10fcf;
+            width: calc(var(--container-size) * 0.02);   /* 네 번째 행성 크기 */
+            height: calc(var(--container-size) * 0.02);
+            animation-duration: 15s; /* 네 번째 행성: 15초 */
+        }
+
+        /* 택배 상자 스타일 추가 */
+         .delivery-box {
+            position: absolute;
+            width: calc(var(--container-size) * 0.18);
+            height: calc(var(--container-size) * 0.18);
+            z-index: 15;
+            display: none; /* block에서 none으로 변경 - JSON 데이터에 따라 표시되도록 */
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            top: calc(50% + 100px); /* 별 아래로 이동 */
+            left: 150%;
+        }
+
+        .delivery-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* 서브 별 스타일 추가 */
+        .sub-star {
+            position: absolute;
+            width: calc(var(--container-size) * 0.07);  /* 화면 크기의 0.4% */
+            height: calc(var(--container-size) * 0.07); /* 화면 크기의 0.4% */
+            background-color: #30ed69;
+            border-radius: 50%;
+            z-index: 15;
+            transform-origin: center;
+            box-shadow: 0 0 5px rgba(30, 225, 82, 0.9);
+            animation: pulsate 1s ease-in-out infinite;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* 서브 별 물결 효과 */
+        .sub-star::before {
+            content: '';
+            position: absolute;
+            top: 0.1%;
+            left: 0.1%;
+            width: 60%;
+            height: 60%;
+            border-radius: 50%;
+            background: transparent;
+            border: calc(var(--container-size) * 0.01) solid rgba(185, 177, 185, 0.8);
+            transform: translate(-30%, -30%);
+            animation: starRipple 5s infinite;
+            animation-delay:1s;
+            pointer-events: none;
+        }
+
+        /* 맥동 효과를 위한 새로운 애니메이션 */
+        @keyframes pulsate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* 완성된 서브 별 스타일 */
+        .sub-star.completed {
+            background-color: #f8f9fa;
+            box-shadow: 0 0 30px rgba(241, 243, 244, 0.9); /* 완성된 상태의 빛나는 효과 강화 */
+        }
+
+        /* 별자리 연결선 스타일 추가 */
+        .constellation-line {
+            position: absolute;
+            height: 2px;
+            background-color: rgba(255, 255, 0, 0.3);
+            transform-origin: left center;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        /* 별자리 연결선 호버 효과 */
+        .constellation-line:hover {
+            background-color: rgba(255, 255, 0, 0.6);
+        }
+
+        /* 인칭 이미지 스타일 추가 */
+        #person_image {
+            position: absolute;
+            transition: all 0.3s ease;
+            z-index: 25;
+            pointer-events: auto;
+        }
+
+        #person_image:hover {
+            transform: translate(-50%, 0) scale(1.1);
+            opacity: 1;
+        }
+
+        /* 비디오 컨테이너 스타일 */
+        #video-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            z-index: 1000;
+            display: none;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+        }
+
+        #video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-perspective: 1000;
+            perspective: 1000;
+        }
+
+        /* 크롬 브라우저 호환성을 위한 스타일 */
+        #video-player::-webkit-media-controls {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        #video-player::-webkit-media-controls-panel {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        #video-player::-webkit-media-controls-play-button {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        #video-player::-webkit-media-controls-timeline {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        #video-player::-webkit-media-controls-current-time-display,
+        #video-player::-webkit-media-controls-time-remaining-display {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        #video-player::-webkit-media-controls-mute-button,
+        #video-player::-webkit-media-controls-volume-slider {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        #video-player::-webkit-media-controls-fullscreen-button {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        /* 스마트폰에서 비디오 컨트롤 크기 조정 */
+        @media screen and (max-width: 500px) {
+            #video-container {
+                width: 95%;
+                height: 95%;
+            }
+
+            #video-player {
+                width: 100%;
+                height: 100%;
+                -webkit-transform: translateZ(0);
+                transform: translateZ(0);
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
+                -webkit-perspective: 1000;
+                perspective: 1000;
+            }
+
+            #video-player::-webkit-media-controls,
+            #video-player::-moz-media-controls,
+            #video-player::-ms-media-controls {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                height: 8vw !important;
+                min-height: 20px;
+            }
+
+            #video-player::-webkit-media-controls-panel,
+            #video-player::-moz-media-controls-panel,
+            #video-player::-ms-media-controls-panel {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                height: 8vw !important;
+                min-height: 20px;
+                padding: 0 1vw !important;
+            }
+
+            #video-player::-webkit-media-controls-play-button,
+            #video-player::-moz-media-controls-play-button,
+            #video-player::-ms-media-controls-play-button {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                width: 6vw !important;
+                height: 6vw !important;
+                min-width: 15px;
+                min-height: 15px;
+            }
+
+            /* Skip 버튼 크기 조정 */
+            #video-player::-webkit-media-controls-skip-backward-button,
+            #video-player::-webkit-media-controls-skip-forward-button,
+            #video-player::-moz-media-controls-skip-backward-button,
+            #video-player::-moz-media-controls-skip-forward-button,
+            #video-player::-ms-media-controls-skip-backward-button,
+            #video-player::-ms-media-controls-skip-forward-button {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                width: 1.8vw !important; /* 6vw의 30% */
+                height: 1.8vw !important;
+                min-width: 4.5px; /* 15px의 30% */
+                min-height: 4.5px;
+            }
+
+            #video-player::-webkit-media-controls-timeline,
+            #video-player::-moz-media-controls-timeline,
+            #video-player::-ms-media-controls-timeline {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                height: 4vw !important;
+                min-height: 10px;
+            }
+
+            #video-player::-webkit-media-controls-current-time-display,
+            #video-player::-webkit-media-controls-time-remaining-display,
+            #video-player::-moz-media-controls-current-time-display,
+            #video-player::-moz-media-controls-time-remaining-display,
+            #video-player::-ms-media-controls-current-time-display,
+            #video-player::-ms-media-controls-time-remaining-display {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                font-size: 3vw !important;
+                min-font-size: 8px;
+            }
+
+            #video-player::-webkit-media-controls-mute-button,
+            #video-player::-webkit-media-controls-volume-slider,
+            #video-player::-moz-media-controls-mute-button,
+            #video-player::-moz-media-controls-volume-slider,
+            #video-player::-ms-media-controls-mute-button,
+            #video-player::-ms-media-controls-volume-slider {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+
+            #video-player::-webkit-media-controls-fullscreen-button,
+            #video-player::-moz-media-controls-fullscreen-button,
+            #video-player::-ms-media-controls-fullscreen-button {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+        }
+
+        /* 인칭 아이콘 스타일 */
+        #person-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: calc(var(--container-size) * 0.05);
+            height: calc(var(--container-size) * 0.05);
+            z-index: 100;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        #person-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* 모바일 대응 */
+        @media screen and (max-width: 500px) {
+            #person-icon {
+                width: calc(var(--container-size) * 0.08);
+                height: calc(var(--container-size) * 0.08);
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        .star-text {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 2vw 3vw;
+            border-radius: 2vw;
+            font-size: 16px;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 30;
+            max-width: 40vw;
+            word-wrap: break-word;
+            display: none;
+            pointer-events: none;
+            transform: translate(20px, -50%);
+            transition: opacity 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .star-text.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .star-text-small {
+            position: absolute;
+            background-color: white;
+            padding: 6vw 12vw;
+            border-radius: 6vw;
+            font-size: 160px;
+            color: black;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.2);
+            z-index: 9999;
+            max-width: 20vw;
+            word-wrap: break-word;
+            border: 0.8vw solid #ccc;
+            font-style: italic;
+            white-space: nowrap;
+            pointer-events: none;
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+            margin-left: 4vw;
+        }
+
+        .star-text-small.show {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* 스마트폰에서 텍스트 크기 조정 */
+        @media screen and (max-width: 500px) {
+            .star-text {
+                font-size: 14px;  /* 기본 텍스트 크기 축소 */
+                padding: 3vw 4vw;  /* 패딩 축소 */
+                max-width: 70vw;  /* 최대 너비 축소 */
+            }
+
+            .star-text-small {
+                padding: 10vw 18vw;  /* 패딩 크기 절반으로 축소 */
+                font-size: 80px;    /* 폰트 크기 절반으로 축소 */
+                border-radius: 10vw; /* 테두리 반경 축소 */
+                max-width: 40vw;    /* 최대 너비 축소 */
+                border-width: 1.5vw; /* 테두리 두께 축소 */
+            }
+
+            #message {
+                font-size: 24px;  /* 메시지 텍스트 크기 축소 */
+                padding: 3vw 8vw;  /* 패딩 축소 */
+            }
+        }
+
+        /* 반응형 요소 크기 조정 */
+        @media screen and (max-width: 500px) {
+          .picture-element, .yoso-element {
+            width: calc(var(--container-size) * 0.225);
+            height: calc(var(--container-size) * 0.225);
+          }
+        }
+        @media screen and (min-width: 501px) and (max-width: 800px) {
+          .picture-element, .yoso-element {
+            width: calc(var(--container-size) * 0.3);
+            height: calc(var(--container-size) * 0.3);
+          }
+        }
+        @media screen and (min-width: 801px) and (max-width: 1200px) {
+          .picture-element, .yoso-element {
+            width: calc(var(--container-size) * 0.7);
+            height: calc(var(--container-size) * 0.7);
+          }
+        }
+        @media screen and (min-width: 1201px) and (max-width: 1400px) {
+          .picture-element, .yoso-element {
+            width: calc(var(--container-size) * 0.8);
+            height: calc(var(--container-size) * 0.8);
+          }
+        }
+        @media screen and (min-width: 1401px) and (max-width: 1700px) {
+          .picture-element, .yoso-element {
+            width: calc(var(--container-size) * 0.9);
+            height: calc(var(--container-size) * 0.9);
+          }
+        }
+        @media screen and (min-width: 1701px) and (max-width: 2100px) {
+          .picture-element, .yoso-element {
+            width: calc(var(--container-size) * 1.05);
+            height: calc(var(--container-size) * 1.05);
+          }
+        }
+        @media screen and (min-width: 2101px) {
+          .picture-element, .yoso-element {
+            width: calc(var(--container-size) * 1.2);
+            height: calc(var(--container-size) * 1.2);
+          }
+        }
+
+        .picture-cell > div {
+          width: 100%;
+          height: 100%;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-template-rows: 1fr 1fr;
+          gap: 0;
+        }
+        .picture-cell img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        /* point 버튼: 우측 중간 고정 */
+        #point-button {
+            position: fixed;
+            top: 50%;
+            right: 3vw;
+            transform: translateY(-50%);
+            z-index: 2000;
+            font-size: 1.2rem;
+            padding: 1vw 2vw;
+            border: none;
+            border-radius: 1vw;
+            background: #f5f5f5;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        #point-button:hover {
+            background: #4CAF50;
+            color: #fff;
+        }
+        /* point-score도 우측 중간에 맞춤 */
+        #point-score {
+            position: fixed;
+            top: 50%;
+            right: 3vw;
+            transform: translateY(-50%);
+            z-index: 2000;
+            font-size: 1.1rem;
+            background: rgba(255,255,255,0.95);
+            border-radius: 0.7vw;
+            padding: 0.5vw 1vw;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        @media (max-width: 600px) {
+            #point-button, #point-score {
+                right: 2vw;
+                font-size: 1rem;
+                padding: 2vw 4vw;
+                border-radius: 2vw;
+            }
+        }
+        /* total 버튼: 우측 하단 고정 */
+        #bottom-right-buttons {
+            position: fixed;
+            right: 3vw;
+            bottom: 3vw;
+            z-index: 2000;
+            display: flex;
+            gap: 1vw;
+        }
+        #total-button {
+            font-size: 1.2rem;
+            padding: 1vw 2vw;
+            border: none;
+            border-radius: 1vw;
+            background: #f5f5f5;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        #total-button:hover {
+            background: #4CAF50;
+            color: #fff;
+        }
+        @media (max-width: 600px) {
+            #point-button {
+                top: 2vw;
+                right: 2vw;
+                font-size: 1rem;
+                padding: 2vw 4vw;
+                border-radius: 2vw;
+            }
+            #bottom-right-buttons {
+                right: 2vw;
+                bottom: 2vw;
+                gap: 2vw;
+            }
+            #total-button {
+                font-size: 1rem;
+                padding: 2vw 4vw;
+                border-radius: 2vw;
+            }
+        }
+        
+        /* --- 사용자 제공 미디어 쿼리 삽입 시작 --- */
+        /* 모바일(최대 500px 이하) */
+        @media screen and (max-width: 500px) {
+          :root {
+            --container-size: calc(100vh - 50px);
+          }
+
+          #image-container {
+            width: 100vw; /* 가로 전체 폭 */
+            height: 100vw; /* 정사각형 유지 */
+          }
+
+          #next-button {
+            position: absolute;
+            top: 200px; /* 오른쪽 상단에서 200px 아래 */
+            right: 5%; /* 오른쪽 */
+            transform: none; /* 기존 가운데 정렬 제거 */
+            font-size: calc(var(--container-size) * 0.032); /* 글자만 2배로 */
+            padding: 2vw 4vw; /* 패딩도 2배로 */
+            background-color: #e4ede4;
+            color: #333;
+            border: none;
+            border-radius: 2vw; /* 둥근 모서리도 2배로 */
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            margin: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+          #spaceship {
+            width: calc(var(--container-size) * 0.06);
+            height: calc(var(--container-size) * 0.06);
+          }
+
+          #person-icon {
+            width: calc(var(--container-size) * 0.08);
+            height: calc(var(--container-size) * 0.08);
+            top: 10px;
+            right: 10px;
+          }
+
+          #text-display {
+            font-size: 14px;
+          }
+          
+          /* 별, 별자리 크기 조절 - 필요시 추가 */
+          .star {
+            width: calc(var(--container-size) * 0.04);
+            height: calc(var(--container-size) * 0.04);
+          }
+
+          /* yoso 크기 20% 축소 */
+          .yoso-element {
+            width: calc(var(--container-size) * 0.144);
+            height: calc(var(--container-size) * 0.144);
+            margin-left: 6vw;
+          }
+        }
+
+        /* 501 ~ 800px */
+        @media screen and (min-width: 501px) and (max-width: 800px) {
+          :root {
+            --container-size: calc(100vh - 50px);
+          }
+
+          #image-container {
+            width: 100vw;
+            height: 100vw; /* 정사각형 */
+          }
+
+          #next-button {
+            position: absolute;
+            top: 200px; /* 오른쪽 상단에서 200px 아래 */
+            right: 5%; /* 오른쪽 */
+            transform: none; /* 기존 가운데 정렬 제거 */
+            font-size: calc(var(--container-size) * 0.032); /* 글자만 2배로 */
+            padding: 2vw 4vw; /* 패딩도 2배로 */
+            background-color: #e4ede4;
+            color: #333;
+            border: none;
+            border-radius: 2vw; /* 둥근 모서리도 2배로 */
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            margin: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+          #spaceship {
+            width: calc(var(--container-size) * 0.06);
+            height: calc(var(--container-size) * 0.06);
+          }
+
+          #person-icon {
+            width: calc(var(--container-size) * 0.08);
+            height: calc(var(--container-size) * 0.08);
+          }
+
+          #text-display {
+            font-size: 18px;
+          }
+        }
+
+        /* 801 ~ 1200px */
+        @media screen and (min-width: 801px) and (max-width: 1200px) {
+          :root {
+            --container-size: calc(100vh - 50px);
+          }
+
+          #image-container {
+            width: calc(100vw);
+            height: calc(100vw);
+          }
+
+          #next-button {
+            position: absolute;
+            top: 200px; /* 오른쪽 상단에서 200px 아래 */
+            right: 5%; /* 오른쪽 */
+            transform: none; /* 기존 가운데 정렬 제거 */
+            font-size: calc(var(--container-size) * 0.032); /* 글자만 2배로 */
+            padding: 2vw 4vw; /* 패딩도 2배로 */
+            background-color: #e4ede4;
+            color: #333;
+            border: none;
+            border-radius: 2vw; /* 둥근 모서리도 2배로 */
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            margin: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+          #spaceship {
+            width: calc(var(--container-size) * 0.06);
+            height: calc(var(--container-size) * 0.06);
+          }
+
+          #person-icon {
+            width: calc(var(--container-size) * 0.08);
+            height: calc(var(--container-size) * 0.08);
+          }
+
+          #text-display {
+            font-size: 22px;
+          }
+        }
+
+        /* 1201 ~ 1400px */
+        @media screen and (min-width: 1201px) and (max-width: 1400px) {
+          :root {
+            --container-size: calc(100vh - 50px);
+          }
+
+          #image-container {
+            width: calc(100vw);
+            height: calc(100vw);
+          }
+
+          #next-button {
+            position: absolute;
+            top: 200px; /* 오른쪽 상단에서 200px 아래 */
+            right: 5%; /* 오른쪽 */
+            transform: none; /* 기존 가운데 정렬 제거 */
+            font-size: calc(var(--container-size) * 0.032); /* 글자만 2배로 */
+            padding: 2vw 4vw; /* 패딩도 2배로 */
+            background-color: #e4ede4;
+            color: #333;
+            border: none;
+            border-radius: 2vw; /* 둥근 모서리도 2배로 */
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            margin: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+          #spaceship {
+            width: calc(var(--container-size) * 0.06);
+            height: calc(var(--container-size) * 0.06);
+          }
+        }
+
+        /* 1401px 이상 */
+        @media screen and (min-width: 1401px) {
+          :root {
+            --container-size: calc(100vh - 50px);
+          }
+
+          #image-container {
+            width: calc(100vw);
+            height: calc(100vw);
+          }
+
+          #next-button {
+            position: absolute;
+            top: 200px; /* 오른쪽 상단에서 200px 아래 */
+            right: 5%; /* 오른쪽 */
+            transform: none; /* 기존 가운데 정렬 제거 */
+            font-size: calc(var(--container-size) * 0.032); /* 글자만 2배로 */
+            padding: 2vw 4vw; /* 패딩도 2배로 */
+            background-color: #e4ede4;
+            color: #333;
+            border: none;
+            border-radius: 2vw; /* 둥근 모서리도 2배로 */
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            margin: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+          #spaceship {
+            width: calc(var(--container-size) * 0.065);
+            height: calc(var(--container-size) * 0.065);
+          }
+
+          #person-icon {
+            width: calc(var(--container-size) * 0.1);
+            height: calc(var(--container-size) * 0.1);
+          }
+
+          #text-display {
+            font-size: 26px;
+          }
+        }
+        /* --- 사용자 제공 미디어 쿼리 삽입 끝 --- */
+
+        /* yoso-element 정밀 반응형 크기 적용 */
+        .yoso-element {
+          margin-left: 4vw;
+        }
+        @media (max-width: 500px) {
+          .yoso-element {
+            margin-left: 6vw;
+          }
+        }
+        @media (max-width: 400px) {
+          .yoso-element {
+            width: min(max(28px, 12vw), 48px);
+            height: min(max(28px, 12vw), 48px);
+          }
+        }
+
+        /* 요소 간격 vw/vh 적용 */
+        .yoso-element, .picture-element {
+          margin: 0.5vw;
+        }
+        .star-text {
+          padding: 2vw 3vw;
+          border-radius: 2vw;
+          max-width: 40vw;
+        }
+        .star-text-small {
+          padding: 6vw 12vw;
+          border-radius: 6vw;
+          max-width: 20vw;
+          border-width: 0.8vw;
+        }
+        #text-display {
+          padding: 1vw 2vw;
+          border-radius: 1vw;
+        }
+        /* 모바일에서 간격 더 조정 */
+        @media (max-width: 500px) {
+          #message {
+            padding: 3vw 8vw;
+            border-radius: 3vw;
+          }
+          #next-button {
+            position: absolute;
+            top: 200px; /* 오른쪽 상단에서 200px 아래 */
+            right: 5%; /* 오른쪽 */
+            transform: none; /* 기존 가운데 정렬 제거 */
+            font-size: calc(var(--container-size) * 0.032); /* 글자만 2배로 */
+            padding: 2vw 4vw; /* 패딩도 2배로 */
+            background-color: #e4ede4;
+            color: #333;
+            border: none;
+            border-radius: 2vw; /* 둥근 모서리도 2배로 */
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            margin: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+          .yoso-element, .picture-element {
+            margin: 1vw;
+          }
+          .star-text {
+            padding: 3vw 4vw;
+            border-radius: 3vw;
+            max-width: 70vw;
+          }
+          .star-text-small {
+            padding: 10vw 18vw;
+            border-radius: 10vw;
+            max-width: 40vw;
+            border-width: 1.5vw;
+          }
+          #text-display {
+            padding: 2vw 4vw;
+            border-radius: 2vw;
+          }
+        }
+
+        /* 1440px~1600px(예: 갤럭시 울트라)에서 요소 간격 반으로 */
+        @media (min-width: 1200px) and (max-width: 1600px) {
+          .yoso-element, .picture-element {
+            margin: 0.15vw;
+          }
+          .star-text {
+            padding: 1vw 1.5vw;
+            border-radius: 1vw;
+            max-width: 20vw;
+          }
+          .star-text-small {
+            padding: 3vw 6vw;
+            border-radius: 3vw;
+            max-width: 10vw;
+            border-width: 0.4vw;
+          }
+          #message {
+            padding: 1vw 3vw;
+            border-radius: 1vw;
+          }
+          #next-button {
+            position: absolute;
+            top: 200px; /* 오른쪽 상단에서 200px 아래 */
+            right: 5%; /* 오른쪽 */
+            transform: none; /* 기존 가운데 정렬 제거 */
+            font-size: calc(var(--container-size) * 0.032); /* 글자만 2배로 */
+            padding: 2vw 4vw; /* 패딩도 2배로 */
+            background-color: #e4ede4;
+            color: #333;
+            border: none;
+            border-radius: 2vw; /* 둥근 모서리도 2배로 */
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            margin: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+          #text-display {
+            padding: 0.5vw 1vw;
+            border-radius: 0.5vw;
+          }
+        }
+
+        /* yoso 아이콘 행(가로 배치) 간격 1vw 적용 */
+        .yoso-icon-row {
+          display: flex;
+          flex-direction: row;
+          gap: 1vw;
+          align-items: center;
+        }
+        .yoso-element {
+          margin-right: 0;
+        }
+
+        @media (max-width: 600px) {
+          #image-container {
+            height: 100vh;
+          }
+          #current-image {
+            object-fit: cover;
+          }
+        }
+        .picture-element {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            margin: auto;
+        }
+        .picture-cell {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          overflow: hidden; /* 셀 밖으로 사진이 안 나가게 */
+          border-radius: 50%; /* 원형 프레임 */
+          background: transparent; /* 배경 투명 */
+        }
+
+        .picture-element {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover;
+          display: block;
+          margin: 0;
+          border-radius: 50%; /* 사진도 원형으로 */
+        }
+        /* 반응형 요소 크기 조정 */
+.picture-element {
+  width: calc(var(--container-size) * 0.45) !important;
+  height: calc(var(--container-size) * 0.45) !important;
+}
+  @media screen and (max-width: 500px) {
+    .picture-element {
+      width: 15% !important;  /* 모바일에서 15%로 축소 */
+      height: 15% !important;  /* 모바일에서 15%로 축소 */
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 800px) {
+    .picture-element {
+      width: calc(var(--container-size) * 0.18) !important;
+      height: calc(var(--container-size) * 0.18) !important;
+    }
+  }
+  @media screen and (min-width: 801px) and (max-width: 1200px) {
+    .picture-element {
+      width: calc(var(--container-size) * 0.42) !important;
+      height: calc(var(--container-size) * 0.42) !important;
+    }
+  }
+  @media screen and (min-width: 1201px) and (max-width: 1400px) {
+    .picture-element {
+      width: calc(var(--container-size) * 0.48) !important;
+      height: calc(var(--container-size) * 0.48) !important;
+    }
+  }
+  @media screen and (min-width: 1401px) and (max-width: 1700px) {
+    .picture-element {
+      width: calc(var(--container-size) * 0.54) !important;
+      height: calc(var(--container-size) * 0.54) !important;
+    }
+  }
+  @media screen and (min-width: 1701px) and (max-width: 2100px) {
+    .picture-element {
+      width: calc(var(--container-size) * 0.63) !important;
+      height: calc(var(--container-size) * 0.63) !important;
+    }
+  }
+  @media screen and (min-width: 2101px) {
+    .picture-element {
+      width: calc(var(--container-size) * 0.72) !important;
+      height: calc(var(--container-size) * 0.72) !important;
+    }
+  } 
+        /* 우측 하단 고정 버튼 스타일 */
+        #bottom-right-buttons {
+            position: fixed;
+            right: 3vw;
+            bottom: 3vw;
+            z-index: 2000;
+            display: flex;
+            gap: 1vw;
+        }
+        #point-button, #total-button {
+            font-size: 1.2rem;
+            padding: 1vw 2vw;
+            border: none;
+            border-radius: 1vw;
+            background: #f5f5f5;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        #point-button:hover, #total-button:hover {
+            background: #4CAF50;
+            color: #fff;
+        }
+        @media (max-width: 600px) {
+            #bottom-right-buttons {
+                right: 2vw;
+                bottom: 2vw;
+                gap: 2vw;
+            }
+            #point-button, #total-button {
+                font-size: 1rem;
+                padding: 2vw 4vw;
+                border-radius: 2vw;
+            }
+        }
+        #sentence-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.95);
+            color: #222;
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 16px 32px;
+            border-radius: 16px;
+            z-index: 2000;
+            min-width: 200px;
+            min-height: 40px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="image-container">
+        <img id="current-image" src="" alt="Current Image" style="background: #eee;">
+        <img id="spaceship" src="assets/images/spaceship.png" alt="Spaceship" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:80px; height:80px; z-index:30;">
+        <img id="delivery-box" class="delivery-box" src="assets/images/delivery-box.png" alt="Delivery Box">
+        <div id="message" style="display: none;">Next Button Click!</div>
+        <div id="constellation-container"></div>
+        <div id="star-container"></div>
+        <div id="sub-star-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 15;"></div>
+        <div id="text-display"></div>
+        <div id="particle-container"></div>
+        <div id="2_person"></div>
+        <div id="part-of-speech-icon" style="display: none; position: absolute; top: 20px; right: 80px; width: 50px; height: 50px; z-index: 100;">
+            <img id="part-of-speech-icon-img" src="" alt="Part of Speech Icon" style="width: 100%; height: 100%;">
+        </div>
+        <div id="video-container">
+            <video id="video-player" controls>
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        <img id="person-icon" alt="Person Icon" style="display: none;">
+        <div id="main-picture-row" style="position:absolute; top:30px; left:50%; transform:translateX(-50%); display:flex; gap:16px; z-index:1001;"></div>
+    </div>
+    <div id="sentence-bar">테스트 문장</div>
+    <button id="next-button" disabled>Next</button>
+    <!-- Point & Total 버튼 분리 -->
+    <button id="point-button">Point</button>
+    <div id="point-score" style="position:fixed; top:50%; right:3vw; transform:translateY(-50%); z-index:2000; font-size:1.1rem; background:rgba(255,255,255,0.95); border-radius:0.7vw; padding:0.5vw 1vw; box-shadow:0 1px 4px rgba(0,0,0,0.08);">point: 0</div>
+    <div id="bottom-right-buttons">
+        <div id="try-score" style="margin-bottom:1vw; font-size:1.1rem; background:rgba(255,255,255,0.95); border-radius:0.7vw; padding:0.5vw 1vw; box-shadow:0 1px 4px rgba(0,0,0,0.08);">try: 0</div>
+        <button id="total-button">Total</button>
+    </div>
+    <!-- 로그아웃 버튼 추가 -->
+    <button id="logout-btn" style="position:fixed;top:20px;right:20px;z-index:2002;">index</button>
+    <script src="main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.onclick = function() {
+                    const studentAcademy = localStorage.getItem('studentAcademy') || '';
+                    saveActivity(name, "로그아웃");
+                    window.location.href = "index.html";
+                };
+            }
+        });
+    </script>
+    <div class="picture-grid"></div>
+    <script>
+        let point = 0;
+    </script>
+    <script>
+  function saveActivity(name, action) {
+    fetch('http://127.0.0.1:3000/activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            name: name,
+            action: action,
+            time: new Date().toISOString()
+        })
+    });
+}
+</script>
+</body>
+</html>
