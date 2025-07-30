@@ -7,9 +7,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 정적 파일 서빙 설정
+app.use(express.static(__dirname));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
 // students.json 파일 경로 (server.js가 public 폴더에 있을 때)
 const studentsPath = path.join(__dirname, 'assets', 'data', 'students.json');
 const students = JSON.parse(fs.readFileSync(studentsPath, 'utf8'));
+
+// 루트 경로에서 index.html 제공
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// 로그인 페이지 경로
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
 
 // 로그인 API (이름+비번)
 app.post('/login', (req, res) => {
@@ -20,7 +34,7 @@ app.post('/login', (req, res) => {
   if (student) {
     // 로그인 기록 저장
     const loginLog = {
-      ID: student.name,
+      ID: student.ID,
       number: student.number,
       academy: student.Academy,
       class: student.Class,
@@ -38,7 +52,7 @@ app.post('/login', (req, res) => {
     fs.writeFileSync('login_log.json', JSON.stringify(arr, null, 2));
     // 필드명 변환해서 반환
     const studentInfo = {
-      ID: student.name,
+      ID: student.ID,
       number: student.number,
       academy: student.Academy,
       class: student.Class,

@@ -437,16 +437,48 @@
                                     
                                     const audioText = points[n-1]?.[`S${n} audio_text`] || points[n-1]?.['audio_text'];
                                     if (audioText) {
-                                        const audio = new Audio('assets/audio/' + audioText + '.mp3');
-                                        audio.play();
-                                        audio.onended = function() {
-                                            mainText.style.display = 'block'; // 오디오 끝나면 텍스트 표시
-                                            // 텍스트가 보인 후 0.8초 후 다음 별
+                                        try {
+                                            const audio = new Audio('assets/audio/' + audioText + '.mp3');
+                                            
+                                            // 오디오 로딩 오류 처리
+                                            audio.addEventListener('error', function(e) {
+                                                console.log('오디오 로딩 실패:', e);
+                                                // 오디오 로딩 실패 시 바로 텍스트 표시
+                                                mainText.style.display = 'block';
+                                                setTimeout(function() {
+                                                    currentStar++;
+                                                    showStar(currentStar);
+                                                }, 800);
+                                            });
+                                            
+                                            // 오디오 재생 시도
+                                            audio.play().catch(function(error) {
+                                                console.log('오디오 재생 실패:', error);
+                                                // 오디오 재생 실패 시 바로 텍스트 표시
+                                                mainText.style.display = 'block';
+                                                setTimeout(function() {
+                                                    currentStar++;
+                                                    showStar(currentStar);
+                                                }, 800);
+                                            });
+                                            
+                                            audio.onended = function() {
+                                                mainText.style.display = 'block'; // 오디오 끝나면 텍스트 표시
+                                                // 텍스트가 보인 후 0.8초 후 다음 별
+                                                setTimeout(function() {
+                                                    currentStar++;
+                                                    showStar(currentStar);
+                                                }, 800);
+                                            };
+                                        } catch (error) {
+                                            console.log('오디오 생성 실패:', error);
+                                            // 오디오 생성 실패 시 바로 텍스트 표시
+                                            mainText.style.display = 'block';
                                             setTimeout(function() {
                                                 currentStar++;
                                                 showStar(currentStar);
                                             }, 800);
-                                        };
+                                        }
                                     } else {
                                         mainText.style.display = 'block'; // 오디오가 없으면 바로 텍스트 표시
                                         setTimeout(function() {

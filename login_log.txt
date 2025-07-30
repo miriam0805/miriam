@@ -58,3 +58,9 @@
 {"number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-07-29T15:26:48.739Z","action":"로그인"}
 {"number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-07-29T15:45:37.597Z","action":"로그인"}
 {"number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-07-30T06:03:28.134Z","action":"로그인"}
+{"ID":"조규상","number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-07-30T09:34:00.300Z","action":"로그인"}
+{"ID":"옥혜리","number":"1","academy":"토킹스타","class":"비기너B","grade":"1","loginTime":"2025-07-30T09:35:36.615Z","action":"로그인"}
+{"ID":"조규상","number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-07-30T09:48:54.360Z","action":"로그인"}
+{"ID":"조규상","number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-07-30T09:52:37.440Z","action":"로그인"}
+{"ID":"옥혜리","number":"1","academy":"토킹스타","class":"비기너B","grade":"1","loginTime":"2025-07-30T09:57:47.439Z","action":"로그인"}
+{"ID":"조규상","number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-07-30T10:02:04.152Z","action":"로그인"}
