@@ -1,0 +1,241 @@
+.star-war-game {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+}
+
+#main-frame {
+  width: min(100vw, 100vh, 1200px);
+  height: min(100vw, 100vh, 1200px);
+  margin: 0 auto;
+  border: 5px solid #000;
+  position: relative;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+#top-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 5px solid #000;
+  height: 80px;
+  min-height: 60px;
+  background: #fff;
+  position: relative;
+}
+
+.photo-cell {
+  flex: 1;
+  border-right: 2px solid #000;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.photo-cell:last-child {
+  border-right: none;
+}
+
+#index-box {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 70px;
+  height: 30px;
+  border: 2px solid #000;
+  background: #fff;
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+}
+
+#main-image-area {
+  width: 100%;
+  aspect-ratio: 4/3;
+  position: relative;
+  overflow: hidden;
+}
+
+#main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#bottom-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-top: 1px solid #f0e4e4;
+  height: 1px;
+  min-height: 2px;
+  background: #fff;
+  position: relative;
+  padding: 0;
+}
+
+.icon-cell {
+  flex: 1;
+  border-right: 2px solid #000;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin: 0;
+  padding: 0;
+}
+
+.icon-cell:last-child {
+  border-right: none;
+}
+
+.icon-cell img {
+  width: 48px;
+  height: 4.8px;
+}
+
+#score-box {
+  position: relative;
+  right: 0;
+  top: 0;
+  width: 300px;
+  height: 40px;
+  border-right: 2px solid #000;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0;
+  padding: 0 0 0 10px;
+}
+
+#right-box {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 40px;
+  border: 2px solid #000;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  z-index: 10;
+}
+
+#right-box div {
+  color: #666;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3), -1px -1px 2px rgba(255,255,255,0.8);
+}
+
+#main-bottom-text {
+  width: min(100vw, 100vh, 1200px);
+  margin: 0 auto;
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 16px;
+  font-size: 1.3rem;
+  text-align: center;
+  margin-top: 12px;
+  padding: 12px 0;
+}
+
+/* S1004 별 스타일 */
+.star.s1004 {
+  background-color: #f8f9fa;
+  box-shadow: 0 0 40px rgba(241, 243, 244, 0.8);
+}
+
+.star-point {
+  position: absolute;
+  color: gold;
+  font-size: 2rem;
+  text-shadow: 1px 1px 4px #333;
+  z-index: 2;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.blackhole-star {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 60% 40%, #444 0%, #000 80%, #222 100%);
+  border: 4px solid #bbb;
+  box-shadow: 0 0 16px 8px #222, 0 0 32px 16px #000;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  animation: blackhole-spin 2s linear infinite;
+}
+
+@keyframes blackhole-spin {
+  0% { box-shadow: 0 0 16px 8px #222, 0 0 32px 16px #000; }
+  100% { box-shadow: 0 0 32px 16px #222, 0 0 16px 8px #000; }
+}
+
+#icon-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+  width: 100%;
+  height: 138.24px;
+}
+
+#picture-row {
+  display: none;
+  justify-content: center;
+  gap: 8px;
+  margin: 10px 0;
+  height: 156px;
+  border: 2px solid #000;
+  background: #fff;
+}
+
+#center-sentence {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  z-index: 1000;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #222;
+  background: rgba(255,255,0,0.8);
+  padding: 40px 60px;
+  border-radius: 24px;
+  text-align: center;
+}
+
+#star-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+} 
