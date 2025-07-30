@@ -1,0 +1,36 @@
+
+물론입니다! Vercel을 사용하는 기본 단계는 다음과 같습니다:
+
+1. 계정 만들기
+Vercel 홈페이지로 이동하세요.
+이메일이나 GitHub, GitLab, Bitbucket 계정으로 회원가입하세요.
+2. 프로젝트 준비
+Node.js 프로젝트 폴더를 준비하거나 새로 만드세요.
+예를 들어, 간단한 Express 서버 또는 서버리스 함수 프로젝트를 만들 수 있습니다.
+3. Vercel CLI 설치
+터미널(명령 프롬프트 또는 터미널창)에서 Vercel CLI를 설치하세요.
+
+bash
+Copy
+npm install -g vercel
+4. 프로젝트 배포
+프로젝트 폴더로 이동 후, 아래 명령어를 실행하세요:
+bash
+Copy
+vercel
+최초 배포 시 몇 가지 질문(프로젝트 이름, 연결된 계정 등)이 나오면 따라 하시면 됩니다.
+배포 후, Vercel은 URL(예: https://your-project.vercel.app)을 제공하며 이 URL에서 바로 서비스 확인 가능.
+5. 서버리스 함수 사용 (선택 사항)
+프로젝트 폴더에 api 디렉터리 생성
+api 폴더 안에 JavaScript 파일 예: hello.js
+js
+Copy
+// api/hello.js
+export default function handler(request, response) {
+  response.status(200).json({ message: "Hello Vercel!" });
+}
+이 함수는 https://your-project.vercel.app/api/hello로 호출 가능.
+6. 자동 배포
+GitHub 저장소와 연동하면, 커밋할 때마다 자동으로 배포됩니다.
+Vercel 사이트에서 프로젝트를 연결하고 GitHub 저장소를 지정하세요.
+이렇게 간단히 시작할 수 있으며, 공식 문서(Vercel Docs)에서 자세한 내용과 고급 기능도 확인할 수 있습니다. 도움이 더 필요하시면 알려 주세요!
