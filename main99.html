@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star War System</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+        }
+        #main-frame {
+            width: min(100vw, 100vh, 1200px);
+            height: min(100vw, 100vh, 1200px);
+            margin: 0 auto;
+            border: 5px solid #000;
+            position: relative;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+        #top-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 5px solid #000;
+            height: 80px;
+            min-height: 60px;
+            background: #fff;
+            position: relative;
+        }
+        .photo-cell {
+            flex: 1;
+            border-right: 2px solid #000;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .photo-cell:last-child {
+            border-right: none;
+        }
+        #index-box {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 70px;
+            height: 30px;
+            border: 2px solid #000;
+            background: #fff;
+            font-size: 0.9rem;
+            text-align: center;
+            line-height: 30px;
+        }
+        #main-image-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: bold;
+            background: #fff;
+        }
+        #bottom-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            border-top: 5px solid #000;
+            height: 60px;
+            min-height: 50px;
+            background: #fff;
+            position: relative;
+            padding: 0;
+            margin: 0;
+        }
+        .icon-cell {
+            flex: 1;
+            border-right: 2px solid #000;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin: 0;
+            padding: 0;
+        }
+        .icon-cell:last-child {
+            border-right: none;
+        }
+        #score-box {
+            position: relative;
+            right: 0;
+            top: 0;
+            width: 120px;
+            height: 100%;
+            border-left: 2px solid #000;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+        }
+        #main-bottom-text {
+            width: min(100vw, 100vh, 1200px);
+            margin: 0 auto;
+            background: #fff;
+            border: 2px solid #000;
+            border-radius: 16px;
+            font-size: 1.3rem;
+            text-align: center;
+            margin-top: 12px;
+            padding: 12px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-frame">
+        <div id="top-row">
+            <div class="photo-cell"><img src="assets/picture/1.jpg" alt="사진1" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="photo-cell"><img src="assets/picture/2.jpg" alt="사진2" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="photo-cell"><img src="assets/picture/3.jpg" alt="사진3" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="photo-cell"><img src="assets/picture/4.jpg" alt="사진4" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div id="index-box">index</div>
+        </div>
+        <div id="main-image-area">메인 화면</div>
+        <div id="bottom-row">
+            <div class="icon-cell"><img src="assets/images/icon1.png" alt="아이콘1" style="width:40px;height:40px;"></div>
+            <div class="icon-cell"><img src="assets/images/icon2.png" alt="아이콘2" style="width:40px;height:40px;"></div>
+            <div class="icon-cell"><img src="assets/images/icon3.png" alt="아이콘3" style="width:40px;height:40px;"></div>
+            <div class="icon-cell"><img src="assets/images/icon4.png" alt="아이콘4" style="width:40px;height:40px;"></div>
+            <div class="icon-cell"><img src="assets/images/icon5.png" alt="아이콘5" style="width:40px;height:40px;"></div>
+            <div class="icon-cell"><img src="assets/images/icon6.png" alt="아이콘6" style="width:40px;height:40px;"></div>
+            <div id="score-box">
+                <div>point:0 try:0</div>
+                <div>level:0 total:0</div>
+            </div>
+        </div>
+    </div>
+    <div id="main-bottom-text">텍스트 .</div>
+    <script src="main99.js"></script>
+</body>
+</html>

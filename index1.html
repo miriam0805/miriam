@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star War System</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        /* 전체 화면 설정을 위한 기본 스타일 추가 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #message {
+            position: absolute;
+            top: 50px;
+            left: 50%; /* 중앙 정렬 */
+            transform: translateX(-50%); /* 정확한 중앙 위치 */
+            padding: 10px 35px;
+            background-color: #f8f9fa; /* 밝은 배경색 */
+            border: 1px solid #ccc; /* 경계선 */
+            border-radius: 10px; /* 둥근 모서리 */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 그림자 효과 */
+            color: #333; /* 텍스트 색상 변경 */
+            font-size: 35px; /* 텍스트 크기 조정 */
+            display: none; /* 초기에는 숨김 */
+            z-index: 100; /* 다른 요소 위에 표시 */
+        }
+        #next-button {
+            position: absolute;
+            top: 200px; /* 오른쪽 상단에서 200px 아래 */
+            right: 5%; /* 오른쪽 */
+            transform: none; /* 기존 가운데 정렬 제거 */
+            font-size: calc(var(--container-size) * 0.016); /* 2배 크기로 변경 */
+            padding: 2vw 4vw; /* 패딩도 2배로 */
+            background-color: #e4ede4;
+            color: #333;
+            border: none;
+            border-radius: 2vw; /* 둥근 모서리도 2배로 */
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            margin: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        #next-button:enabled {
+            background-color: #4CAF50;
+            color: white;
+            display: block;
+        }
+        #image-container {
+            position: relative;
+            width: min(calc(100vh - 50px), 100vw);  /* 높이와 너비 중 작은 값 사용 */
+            height: min(calc(100vh - 50px), 100vw); /* 높이와 너비 중 작은 값 사용 */
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        #current-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0.85; /* 배경 이미지 불투명도 설정 */
+        }
+
+        #star-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;  /* sub-star-container보다 높은 z-index 설정 */
+            pointer-events: auto; /* 컨테이너도 클릭 이벤트 활성화 */
+        }
+
+        .star {
+            position: absolute;
+            width: calc(var(--container-size) * 0.04);  /* 별 크기 조정 */
+            height: calc(var(--container-size) * 0.04); /* 별 크기 조정 */
+            background-color: yellow;
+            border-radius: 80%;
+            cursor: pointer;
+            pointer-events: auto;
+            z-index: 20;
+            transform-origin: center;
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.8);
+            left: calc(50% + var(--container-size) * 0.015);  /* 택배 상자 중앙으로 조정 */
+            top: calc(50% + var(--container-size) * 0.015);   /* 택배 상자 중앙으로 조정 */
+            transform: translate(-50%, -50%); /* 정확한 중앙 위치 */
+        }
+
+        /* S1004 별 스타일 추가 */
+        .star.s1004 {
+            background-color: #f8f9fa; /* 완성된 느낌을 주는 파란 색상 */
+            box-shadow: 0 0 40px rgba(241, 243, 244, 0.8); /* 완성된 느낌을 주는 빛나는 효과 */
+        }
+
+        /* 첫 번째 물결 */
+        .star::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 80%;
+            background: transparent;
+            border: calc(var(--container-size) * 0.009) solid rgba(240, 74, 8, 0.8);
+            transform: translate(-50%, -50%);
+            animation: starRipple 2s infinite;
+            animation-delay: 0s;
+            pointer-events: none;
+        }
+
+        /* 두 번째 물결 */
+        .star::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 80%;
+            background: transparent;
+            border: calc(var(--container-size) * 0.009) solid rgba(228, 214, 10, 0.8);
+            transform: translate(-50%, -50%);
+            animation: starRipple 2s infinite;
+            animation-delay: 0.4s;
+            pointer-events: none;
+        }
+
+        /* 추가 물결을 위한 가상 요소들 */
+        .star-ripple-3,
+        .star-ripple-4,
+        .star-ripple-5 {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 80%;
+            background: transparent;
+            border: 30px solid rgba(189, 12, 9, 0.8);
+            transform: translate(-50%, -50%);
+            animation: ripple 2s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes starRipple {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.9;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                width: calc(var(--container-size) * 0.15); /* 화면 크기의 15% */
+                height: calc(var(--container-size) * 0.15); /* 화면 크기의 15% */
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .mis-star {
+            background-color: rgb(175, 226, 45);
+            box-shadow: 0 0 5px rgba(167, 219, 12, 0.8);
+        }
+       
+        #text-display {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            transform: none;
+            padding: calc(var(--container-size) * 0.001) calc(var(--container-size) * 0.002);
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: calc(var(--container-size) * 0.003);
+            font-size: clamp(12px, 2vw, 36px);
+            font-weight: bold;
+            z-index: 5;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            max-width: 50%;
+        }
+
+        #particle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        @keyframes moveParticle {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(50px, -50px);
+                opacity: 0;
+            }
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 80%;
+            background: transparent;
+            border: 15px solid rgba(221, 209, 33, 0.8);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: ripple 2s infinite;
+            z-index: 50;
+            /* 여기에 영향을 주는 부분 */
+            width: 100px;
+            height: 100px;
+        }
+
+        @keyframes ripple {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.9;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                width: 100px;
+                height: 100px;
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .star-orbit {
+            position: absolute;
+            border: 2px dashed rgba(236, 211, 25, 0.3);
+            border-radius: 50%;
+            z-index: 10;
+            transform: translate(-50%, -50%);
+        }
+
+        #spaceship {
+            position: absolute;
+            width: calc(var(--container-size) * 0.058);  /* 컨테이너 크기의 8% */
+            height: calc(var(--container-size) * 0.058); /* 컨테이너 크기의 8% */
+            left: 1%;
+            top: 5%;
+            transition: all 1s ease-in-out;
+            z-index: 20;
+        }
+
+        /* 다양한 화면 크기에 대한 대응 */
+        @media screen and (max-width: 300px) {
+            :root { --container-size: calc(100vh - 50px); }
+        }
+        @media screen and (min-width: 301px) and (max-width: 500px) {
+            :root { --container-size: calc(100vh - 50px); }
+        }
+        @media screen and (min-width: 501px) and (max-width: 800px) {
+            :root { --container-size: calc(100vh - 50px); }
+        }
+        @media screen and (min-width: 801px) and (max-width: 1200px) {
+            :root { --container-size: calc(100vh - 50px); }
+        }
+        @media screen and (min-width: 1201px) and (max-width: 1500px) {
+            :root { --container-size: calc(100vh - 50px); }
+        }
+        @media screen and (min-width: 1501px) and (max-width: 2000px) {
+            :root { --container-size: calc(100vh - 50px); }
+        }
+        @media screen and (min-width: 2001px) and (max-width: 2500px) {
+            :root { --container-size: calc(100vh - 50px); }
+        }
+        @media screen and (min-width: 2501px) {
+            :root { --container-size: calc(100vh - 50px); }
+        }
+
+        /* 화면에 맞게 스케일 조정 */
+        @media screen {
+            #image-container {
+                transform: scale(var(--scale));
+                transform-origin: top center;
+            }
+        }
+
+        @keyframes clockwise {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 행성 스타일 */
+        .planet {
+            position: absolute;
+            width: 20px;  /* 20px에서 40px로 증가 */
+            height: 20px; /* 20px에서 40px로 증가 */
+            background-color: #3498db;
+            border-radius: 50%;
+            transform-origin: center;
+            z-index: 5;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* 빛나는 효과 추가 */
+            animation: orbit 20s linear infinite; /* 공전 속도를 20초로 늘림 */
+        }
+
+        @keyframes orbit {
+            0% {
+                transform: rotate(0deg) translateX(100px) rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg) translateX(100px) rotate(-360deg);
+            }
+        }
+
+        /* 궤도 스타일 */
+        .orbit {
+            position: absolute;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 20%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* 각 행성별 색상 및 크기 차이 */
+        .planet-1 { 
+            background-color: #753ce7;
+            width: calc(var(--container-size) * 0.05);   /* 첫 번째 행성 크기 */
+            height: calc(var(--container-size) * 0.05);
+            animation-duration: 30s; /* 첫 번째 행성: 30초 */
+        }
+        .planet-2 { 
+            background-color: #df13af;
+            width: calc(var(--container-size) * 0.03);   /* 두 번째 행성 크기 */
+            height: calc(var(--container-size) * 0.03);
+            animation-duration: 25s; /* 두 번째 행성: 25초 */
+        }
+        .planet-3 { 
+            background-color: #b65984;
+            width: calc(var(--container-size) * 0.012);   /* 세 번째 행성 크기 */
+            height: calc(var(--container-size) * 0.012);
+            animation-duration: 20s; /* 세 번째 행성: 20초 */
+        }
+        .planet-4 { 
+            background-color: #f10fcf;
+            width: calc(var(--container-size) * 0.02);   /* 네 번째 행성 크기 */
+            height: calc(var(--container-size) * 0.02);
+            animation-duration: 15s; /* 네 번째 행성: 15초 */
+        }
+
+        /* 택배 상자 스타일 추가 */
+         .delivery-box {
+            position: absolute;
+            width: calc(var(--container-size) * 0.18);
+            height: calc(var(--container-size) * 0.18);
+            z-index: 15;
+            display: none; /* block에서 none으로 변경 - JSON 데이터에 따라 표시되도록 */
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            top: calc(50% + 100px); /* 별 아래로 이동 */
+            left: 150%;
+        }
+
+        .delivery-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* 서브 별 스타일 추가 */
+        .sub-star {
+            position: absolute;
+            width: calc(var(--container-size) * 0.07);  /* 화면 크기의 0.4% */
+            height: calc(var(--container-size) * 0.07); /* 화면 크기의 0.4% */
+            background-color: #30ed69;
+            border-radius: 50%;
+            z-index: 15;
+            transform-origin: center;
+            box-shadow: 0 0 5px rgba(30, 225, 82, 0.9);
+            animation: pulsate 1s ease-in-out infinite;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* 서브 별 물결 효과 */
+        .sub-star::before {
+            content: '';
+            position: absolute;
+            top: 0.1%;
+            left: 0.1%;
+            width: 60%;
+            height: 60%;
+            border-radius: 50%;
+            background: transparent;
+            border: calc(var(--container-size) * 0.01) solid rgba(185, 177, 185, 0.8);
+            transform: translate(-30%, -30%);
+            animation: starRipple 5s infinite;
+            animation-delay:1s;
+            pointer-events: none;
+        }
+
+        /* 맥동 효과를 위한 새로운 애니메이션 */
+        @keyframes pulsate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* 완성된 서브 별 스타일 */
+        .sub-star.completed {
+            background-color: #f8f9fa;
+            box-shadow: 0 0 30px rgba(241, 243, 244, 0.9); /* 완성된 상태의 빛나는 효과 강화 */
+        }
+
+        /* 별자리 연결선 스타일 추가 */
+        .constellation-line {
+            position: absolute;
+            height: 2px;
+            background-color: rgba(255, 255, 0, 0.3);
+            transform-origin: left center;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        /* 별자리 연결선 호버 효과 */
+        .constellation-line:hover {
+            background-color: rgba(255, 255, 0, 0.6);
+        }
+
+        /* 스마트폰 크기에서의 버튼 조정 */
+        @media screen and (max-width: 500px) {
+            #image-container {
+                width: 100vw;  /* 화면 너비에 맞춤 */
+                height: 100vw; /* 정사각형 비율 유지 */
+                margin: 0;
+            }
+            
+            #next-button {
+            position: absolute;
+            top: 200px; /* 오른쪽 상단에서 200px 아래 */
+            right: 5%; /* 오른쪽 */
+            transform: none; /* 기존 가운데 정렬 제거 */
+            font-size: calc(var(--container-size) * 0.016); /* 2배 크기로 변경 */
+            padding: 2vw 4vw; /* 패딩도 2배로 */
+            background-color: #e4ede4;
+            color: #333;
+            border: none;
+            border-radius: 2vw; /* 둥근 모서리도 2배로 */
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            margin: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+            #spaceship {
+                width: calc(var(--container-size) * 0.06);  /* 모바일에서는 6%로 조정 */
+                height: calc(var(--container-size) * 0.06);
+            }
+        }
+
+        /* 스마트폰 크기에서의 텍스트 디스플레이 조정 */
+        @media screen and (max-width: 500px) {
+            #text-display {
+                top: 30px;
+                left: 15px;
+                padding: calc(var(--container-size) * 0.0008) calc(var(--container-size) * 0.0015);
+                font-size: clamp(12px, 2vw, 24px);
+            }
+        }
+
+        /* 인칭 이미지 스타일 추가 */
+        #person_image {
+            position: absolute;
+            transition: all 0.3s ease;
+            z-index: 25;
+            pointer-events: auto;
+        }
+
+        #person_image:hover {
+            transform: translate(-50%, 0) scale(1.1);
+            opacity: 1;
+        }
+
+        /* 스마트폰 크기에서의 인칭 이미지 조정 */
+        @media screen and (max-width: 500px) {
+            #person_image {
+                transform: translate(-50%, 0) scale(0.8);
+            }
+            #person_image:hover {
+                transform: translate(-50%, 0) scale(0.9);
+            }
+        }
+
+        /* 비디오 컨테이너 스타일 */
+        #video-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            z-index: 1000;
+            display: none;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+        }
+
+        #video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* 인칭 아이콘 스타일 */
+        #person-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: calc(var(--container-size) * 0.05);
+            height: calc(var(--container-size) * 0.05);
+            z-index: 100;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        #person-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* 모바일 대응 */
+        @media screen and (max-width: 500px) {
+            #person-icon {
+                width: calc(var(--container-size) * 0.08);
+                height: calc(var(--container-size) * 0.08);
+                top: 10px;
+                right: 10px;
+            }
+        }
+    
+        /* Picture Layer 스타일 추가 */
+        .picture-layer {
+            position: absolute;
+            width: 300px;
+            height: 200px;
+            z-index: 15;
+            overflow: hidden;
+            border: 2px solid #333;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .picture-layer img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .picture-layer .picture-number {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1;
+        }
+        
+        /* Picture Element 스타일 */
+        .picture-element {
+            width: calc(var(--container-size) * 0.45) !important;
+            height: calc(var(--container-size) * 0.45) !important;
+            object-fit: cover;
+            display: block;
+            margin: auto;
+            border-radius: 50%;
+        }
+        
+        .picture-cell {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 50%;
+            background: transparent;
+        }
+        
+        .picture-cell > div {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 0;
+        }
+        
+        .picture-cell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        /* 반응형 Picture Element 크기 조정 */
+        @media screen and (max-width: 500px) {
+            .picture-element {
+                width: calc(var(--container-size) * 0.135) !important;
+                height: calc(var(--container-size) * 0.135) !important;
+            }
+        }
+        
+        @media screen and (min-width: 501px) and (max-width: 800px) {
+            .picture-element {
+                width: calc(var(--container-size) * 0.18) !important;
+                height: calc(var(--container-size) * 0.18) !important;
+            }
+        }
+        
+        @media screen and (min-width: 801px) and (max-width: 1200px) {
+            .picture-element {
+                width: calc(var(--container-size) * 0.42) !important;
+                height: calc(var(--container-size) * 0.42) !important;
+            }
+        }
+        
+        @media screen and (min-width: 1201px) and (max-width: 1400px) {
+            .picture-element {
+                width: calc(var(--container-size) * 0.48) !important;
+                height: calc(var(--container-size) * 0.48) !important;
+            }
+        }
+        
+        @media screen and (min-width: 1401px) and (max-width: 1700px) {
+            .picture-element {
+                width: calc(var(--container-size) * 0.54) !important;
+                height: calc(var(--container-size) * 0.54) !important;
+            }
+        }
+        
+        @media screen and (min-width: 1701px) and (max-width: 2100px) {
+            .picture-element {
+                width: calc(var(--container-size) * 0.63) !important;
+                height: calc(var(--container-size) * 0.63) !important;
+            }
+        }
+        
+        @media screen and (min-width: 2101px) {
+            .picture-element {
+                width: calc(var(--container-size) * 0.72) !important;
+                height: calc(var(--container-size) * 0.72) !important;
+            }
+        }
+        
+        /* Picture Grid 스타일 */
+        .picture-grid {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 300px;
+            height: 800px;
+            z-index: 15;
+            pointer-events: none;
+        }
+        
+        .picture-grid .picture-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .picture-grid .picture-cell {
+            width: 300px;
+            height: 200px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+        
+        /* Yoso Element 스타일 */
+        .yoso-element {
+            position: absolute;
+            z-index: 10;
+            pointer-events: auto;
+            cursor: default;
+            transition: all 0.3s ease;
+            opacity: 0.95;
+        }
+        
+        .yoso-element:hover {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        
+        /* 반응형 Yoso Element 크기 조정 */
+        @media screen and (max-width: 500px) {
+            .yoso-element {
+                width: calc(var(--container-size) * 0.225);
+                height: calc(var(--container-size) * 0.225);
+            }
+        }
+        
+        @media screen and (min-width: 501px) and (max-width: 800px) {
+            .yoso-element {
+                width: calc(var(--container-size) * 0.3);
+                height: calc(var(--container-size) * 0.3);
+            }
+        }
+        
+        @media screen and (min-width: 801px) and (max-width: 1200px) {
+            .yoso-element {
+                width: calc(var(--container-size) * 0.7);
+                height: calc(var(--container-size) * 0.7);
+            }
+        }
+        
+        @media screen and (min-width: 1201px) and (max-width: 1400px) {
+            .yoso-element {
+                width: calc(var(--container-size) * 0.8);
+                height: calc(var(--container-size) * 0.8);
+            }
+        }
+        
+        @media screen and (min-width: 1401px) and (max-width: 1700px) {
+            .yoso-element {
+                width: calc(var(--container-size) * 0.9);
+                height: calc(var(--container-size) * 0.9);
+            }
+        }
+        
+        @media screen and (min-width: 1701px) and (max-width: 2100px) {
+            .yoso-element {
+                width: calc(var(--container-size) * 1.05);
+                height: calc(var(--container-size) * 1.05);
+            }
+        }
+        
+        @media screen and (min-width: 2101px) {
+            .yoso-element {
+                width: calc(var(--container-size) * 1.2);
+                height: calc(var(--container-size) * 1.2);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="image-container">
+        <img id="current-image" src="" alt="Current Image">
+        <img id="spaceship" src="assets/images/spaceship.png" alt="Spaceship">
+        <img id="delivery-box" class="delivery-box" src="assets/images/delivery-box.png" alt="Delivery Box">
+        <div id="message" style="display: none;">Next Button Click!</div>
+        <div id="constellation-container"></div>
+        <div id="star-container"></div>
+        <div id="sub-star-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 15;"></div>
+        <div id="text-display"></div>
+        <div id="particle-container"></div>
+        <div id="2_person"></div>
+        <div id="part-of-speech-icon" style="display: none; position: absolute; top: 20px; right: 80px; width: 50px; height: 50px; z-index: 100;">
+            <img id="part-of-speech-icon-img" src="" alt="Part of Speech Icon" style="width: 100%; height: 100%;">
+        </div>
+        <div id="video-container">
+            <video id="video-player" controls>
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        <img id="person-icon" alt="Person Icon" style="display: none;">
+    </div>
+    <button id="next-button" disabled>Next</button>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!-- index.html의 적절한 위치에 추가 -->
+<form id="login-form">
+    name: <input type="text" id="name"><br>
+    password: <input type="text" id="password"><br>
+    <button type="submit">로그인</button>
+</form>
+<div id="score-area" style="display:none;">
+    <div>Try 점수: <span id="try-score"></span></div>
+    <div>Total 점수: <span id="total-score"></span></div>
+    <button onclick="saveScore()">점수 저장</button>
+</div>
+<script>
+let studentId = null;
+
+document.getElementById('login-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const password = document.getElementById('password').value;
+    try {
+        const res = await fetch('http://127.0.0.1:3000/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            studentId = data.student.id;
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('score-area').style.display = 'block';
+            loadScore();
+        } else {
+            alert('학생 정보가 없습니다.');
+        }
+    } catch (err) {
+        alert('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인하세요.');
+    }
+};
+</script>

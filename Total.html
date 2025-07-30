@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>총 Try 점수</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 100px; }
+        #total-try { font-size: 2.5rem; color: #4CAF50; }
+        button { margin-top: 30px; font-size: 1.2rem; padding: 10px 30px; }
+    </style>
+</head>
+<body>
+    <h1>총 Try 점수</h1>
+    <div id="total-try">0</div>
+    <button onclick="resetTotalTry()">점수 초기화</button>
+    <div id="student-total-try" style="font-size:1.5rem; color:#4CAF50; margin:20px 0;"></div>
+    <script>
+        function showTotalTry() {
+            const totalTry = localStorage.getItem('totalTry') || 0;
+            document.getElementById('total-try').textContent = totalTry;
+        }
+        function resetTotalTry() {
+            localStorage.setItem('totalTry', 0);
+            showTotalTry();
+        }
+        showTotalTry();
+
+        // 페이지가 열릴 때 totalTry 점수 표시
+        function showStudentTotalTry() {
+            const totalTry = localStorage.getItem('totalTry') || 0;
+            document.getElementById('student-total-try').textContent = '총 Try 점수: ' + totalTry;
+        }
+        showStudentTotalTry();
+    </script>
+</body>
+</html>
