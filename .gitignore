@@ -82,17 +82,35 @@ typings/
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
-# Logs
-logs
-*.log
+# Large files and folders
+assets/audio/
+assets/videos/
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.mkv
+*.webm
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
 
-# OS generated files
+# Build outputs
+build/
+dist/
+out/
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
 # IDE files
@@ -102,6 +120,11 @@ Thumbs.db
 *.swo
 *~
 
-# Temporary files
-tmp/
-temp/ 
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db 
