@@ -281,7 +281,7 @@
         const password = document.getElementById('password').value;
         const errorMsg = document.getElementById('error-message');
         try {
-            const res = await fetch('http://127.0.0.1:4000/login', {
+            const res = await fetch('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, password })
@@ -296,7 +296,7 @@
                 localStorage.setItem('grade', data.student.grade);        
                 localStorage.setItem('activityStartTime', new Date().toISOString());
                 // 기록 전송
-                fetch('http://127.0.0.1:4000/log', {
+                fetch('/log', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -336,7 +336,7 @@
     });
 
     function saveActivity(name, action) {
-        fetch('http://127.0.0.1:4000/activity', {
+        fetch('/activity', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -370,7 +370,7 @@
                     alert('로그인 후 이용해 주세요!');
                     return;
                 }
-                fetch('http://127.0.0.1:4000/activity', {
+                fetch('/activity', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

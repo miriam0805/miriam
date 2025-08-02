@@ -75,6 +75,7 @@ app.post('/activity', (req, res) => {
   res.sendStatus(200);
 });
 
-app.listen(4000, () => {
-  console.log('서버 실행중: http://localhost:4000');
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`서버 실행중: http://localhost:${PORT}`);
 });

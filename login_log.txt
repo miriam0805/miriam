@@ -139,3 +139,6 @@
 {"ID":"조규상","number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-08-01T07:37:07.734Z","action":"로그인"}
 {"ID":"조규상","number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-08-01T07:42:53.021Z","action":"로그인"}
 {"ID":"조규상","number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-08-01T08:45:34.574Z","action":"로그인"}
+{"ID":"조규상","number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-08-02T05:09:01.541Z","action":"로그인"}
+{"ID":"조규상","number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-08-02T05:09:38.353Z","action":"로그인"}
+{"ID":"조규상","number":"68","academy":"토킹스타","class":"어드벤스B","grade":"특반","loginTime":"2025-08-02T05:23:32.471Z","action":"로그인"}
